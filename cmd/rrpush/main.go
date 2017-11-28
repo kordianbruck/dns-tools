@@ -25,6 +25,7 @@ func main() {
 	gcpSAFile := flag.String("gcp-sa-file", "secret/gcp-sa.json",
 		"Google Cloud Platform Service Account file in JSON format.")
 	noColor := flag.Bool("no-color", false, "Do not colorize output.")
+	quiet := flag.Bool("quiet", false, "Only output changes and errors.")
 	flag.Parse()
 
 	// validate flags
@@ -119,7 +120,9 @@ func main() {
 		nDeletions := len(change.Deletions)
 		nAdditions := len(change.Additions)
 		if nDeletions == 0 && nAdditions == 0 {
-			log.Println("nothing to change")
+			if !*quiet {
+				log.Println("nothing to change")
+			}
 			continue
 		} else {
 			if nDeletions > 0 {
@@ -192,15 +195,17 @@ func main() {
 		totalAdditions += nAdditions
 	}
 	log.SetPrefix("summary ")
-	log.Printf("%v records removed, %v records created",
-		totalDeletions, totalAdditions)
-	log.Printf("%v managed zones, %v OK, %v failed, "+
-		"%v missing in local database, %v missing on Cloud DNS",
-		len(config.ManagedZones),
-		len(config.ManagedZones)-totalFailed-totalMissingInDatabase-totalMissingOnCloudDNS,
-		totalFailed,
-		totalMissingInDatabase,
-		totalMissingOnCloudDNS)
+	if !*quiet {
+		log.Printf("%v records removed, %v records created",
+			totalDeletions, totalAdditions)
+		log.Printf("%v managed zones, %v OK, %v failed, "+
+			"%v missing in local database, %v missing on Cloud DNS",
+			len(config.ManagedZones),
+			len(config.ManagedZones)-totalFailed-totalMissingInDatabase-totalMissingOnCloudDNS,
+			totalFailed,
+			totalMissingInDatabase,
+			totalMissingOnCloudDNS)
+	}
 	if !exitOK {
 		log.Fatal("some errors occurred")
 	}
