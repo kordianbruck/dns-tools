@@ -33,9 +33,10 @@ func main() {
 		"DNS Tools configuration file.")
 	dryRun := flag.Bool("dry-run", true,
 		"Do not take action on Cloud DNS. Just pretend.")
-	noColor := flag.Bool("no-color", false, "Do not colorize output.")
 	gcpSAFile := flag.String("gcp-sa-file", "secret/gcp-sa.json",
 		"Google Cloud Platform Service Account file in JSON format.")
+	noColor := flag.Bool("no-color", false, "Do not colorize output.")
+	quiet := flag.Bool("quiet", false, "Only output changes and errors.")
 	flag.Parse()
 
 	color.NoColor = *noColor
@@ -65,7 +66,9 @@ func main() {
 	for _, mz := range config.ManagedZones {
 		log.SetPrefix(mz.FQDN + " ")
 		if _, ok := gcpManagedZones[mz.FQDN]; ok {
-			log.Printf("OK")
+			if !*quiet {
+				log.Printf("OK")
+			}
 			continue
 		}
 		color.Set(color.FgHiYellow)
@@ -95,8 +98,11 @@ func main() {
 		log.Printf("nameservers: %q", newMZ.NameServers)
 		totalCreated++
 	}
+
 	log.SetPrefix("summary")
-	log.Printf("%v managed zone create", totalCreated)
+	if !*quiet {
+		log.Printf("%v managed zone create", totalCreated)
+	}
 	if !exitOK {
 		log.Fatal("some errors occurred")
 	}
