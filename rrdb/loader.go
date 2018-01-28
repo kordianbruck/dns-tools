@@ -16,7 +16,7 @@ import (
 // and preference
 type yamlMailserver struct {
 	Mailserver string
-	Priority   uint16
+	Preference uint16
 }
 
 // YAMLMail struct to load YAML data into: A list of mailservers and an optional
@@ -105,7 +105,7 @@ func (db *RRDB) loadNS(fqdn string, delegation yamlDelegation) error {
 func (db *RRDB) loadMX(fqdn string, mail yamlMail) error {
 	rdatas := []string{}
 	for _, mailserver := range mail.Mailservers {
-		rdata := fmt.Sprintf("%d %s", mailserver.Priority,
+		rdata := fmt.Sprintf("%d %s", mailserver.Preference,
 			strings.TrimSpace(mailserver.Mailserver))
 		rdatas = append(rdatas, rdata)
 	}
