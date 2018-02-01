@@ -146,11 +146,6 @@ templates:
               v=DKIM1;
               k=rsa;
               p=foobar123456
-      - name: '@'
-        texts:
-          data:
-            - >
-              v=spf1 +mx +a -all
   - template: website
     description: Our consumer facing website.
     names:
